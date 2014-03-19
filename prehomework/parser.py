@@ -109,12 +109,18 @@ if __name__ == '__main__':
     parser = Parser(filePath)
     parser.load(cache=DEBUG)
     movieList = parser.getStaticByOneColumn(0,2)
+    eachMovie = []
     for key in sorted(movieList):
         movieList[key] = [mean(movieList[key]), variance(movieList[key])]
+        eachMovie.append(movieList[key][0])
         print "{0} {1:.3f} {2:.3f}".format(key, round(movieList[key][0], 3), round(movieList[key][1],3) )
         
     userList = parser.getStaticByOneColumn(1,2)
+    eachUser = []
     for key in sorted(userList):
         userList[key] = [mean(userList[key]), variance(userList[key])]
+        eachUser.append(userList[key][0])
         print "{0} {1:.3f} {2:.3f}".format(key, round(userList[key][0], 3), round(userList[key][1], 3))
         
+    print "{0:.3f} {1:.3f}".format(round(mean(eachMovie), 3), round(variance(eachMovie),3) )
+    print "{0:.3f} {1:.3f}".format(round(mean(eachUser), 3), round(variance(eachUser),3) )
