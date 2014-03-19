@@ -46,6 +46,7 @@ class Parser(object):
                         isEnd = True
                         break
                     line = line.strip("\n")
+                    line = line.strip("\r")
                     if line.find(self.productIDPattern) != -1:
                         productID = line[len(self.productIDPattern):]
                     elif line.find(self.userIDPattern) != -1:
@@ -55,8 +56,9 @@ class Parser(object):
 
                     if len(line.strip()) < 1:
                         break
+                if productID != '':
+                    self.dataRow.append([productID, userID, score])
 
-                self.dataRow.append([productID, userID, score])
             if  cache:
                 self.cache()
 
@@ -84,20 +86,22 @@ def mean(list):
         count += 1
     return total/count
 
-def variance(list):
+def variance(list, meanVal=None):
+    if meanVal is None:
+        meanVal = mean(list)
     count = 0;
     total = 0;
     for item in list:
-        total += item**2
+        total += (item - meanVal)**2
         count += 1
     return total/count
 
 if __name__ == '__main__':
-    DEBUG = True
+    DEBUG = False
     try:
         filePath = argv[1]
     except:
-        filePath = "/home/lucas/Downloads/movies.minor"
+        filePath = "/home/lucas/Downloads/movies_cut.txt"
 
     logging.basicConfig(level=logging.DEBUG)
     logger = logging.getLogger(__name__)
@@ -105,13 +109,12 @@ if __name__ == '__main__':
     parser = Parser(filePath)
     parser.load(cache=DEBUG)
     movieList = parser.getStaticByOneColumn(0,2)
-    for key, val in movieList.iteritems():
-        movieList[key] = [mean(val), variance(val)]
-        print "{0}:\n\t mean={1} variance={2}".format(key, movieList[key][0], movieList[key][1])
+    for key in sorted(movieList):
+        movieList[key] = [mean(movieList[key]), variance(movieList[key])]
+        print "{0} {1:.3f} {2:.3f}".format(key, round(movieList[key][0], 3), round(movieList[key][1],3) )
         
     userList = parser.getStaticByOneColumn(1,2)
-    for key, val in movieList.iteritems():
-        userList[key] = [mean(val), variance(val)]
-        print "{0}:\n\t mean={1} variance={2}".format(key, userList[key][0], userList[key][1])
+    for key in sorted(userList):
+        userList[key] = [mean(userList[key]), variance(userList[key])]
+        print "{0} {1:.3f} {2:.3f}".format(key, round(userList[key][0], 3), round(userList[key][1], 3))
         
-
